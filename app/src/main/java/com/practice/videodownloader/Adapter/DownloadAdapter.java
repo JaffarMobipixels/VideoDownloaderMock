@@ -63,7 +63,9 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
      holder.getDownloadIcon.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
+             DownloadModelClass downloadModelClass = downloadModelClasses.get(position);
              Log.d("download" , "started");
+
 
              //progressbar
              new Thread(new Runnable() {
@@ -92,6 +94,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
 
                      while (downloading) {
 
+                         //new thing added in download adapter
                          DownloadManager.Query q = new DownloadManager.Query();
                          q.setFilterById(myDownloaded);
                          Cursor cursor = dm.query(q);
@@ -102,11 +105,22 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                          new Handler(Looper.getMainLooper()).post(new Runnable() {
                              @Override
                              public void run() {
+                                 holder.progressBar.setProgress(100);
                                  holder.downloadValue.setText(" "+bytes_downloaded);
                                  holder.totalDownloadedValue.setText(" "+bytes_total);
                              }
                          });
                          Log.d("checkdownloadper" , "downloadedbutyes"+bytes_downloaded+"total size"+bytes_total);
+                         final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+
+                         new Handler(Looper.getMainLooper()).post(new Runnable() {
+                             @Override
+                             public void run() {
+
+                                 holder.progressBar.setProgress(dl_progress);
+
+                             }
+                         });
 
                          if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
                              downloading = false;
@@ -115,29 +129,24 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
                                  public void run() {
                                      Log.d("checklisposition" , "poisiton is "+position);
 //                                     holder.getDownloadStatusText.setText("Downloaded");
+                                     holder.progressBar.setProgress(0);
                                      holder.downloadValue.setText("0");
                                      holder.totalDownloadedValue.setText("0");
-//                                     downloadModelClasses.remove(position);
-                                     holder.progressBar.setProgress(100);
+                                     downloadModelClasses.remove(position);
+                                     notifyDataSetChanged();
+
                                  }
                              });
                          }
 
-                         final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
 
 
-                         new Handler(Looper.getMainLooper()).post(new Runnable() {
-                             @Override
-                             public void run() {
 
-                                 holder.progressBar.setProgress(12);
-                             }
-                         });
+
                          cursor.close();
                      }
                  }
              }).start();
-
              Log.d("download" , "started asdasdasdasdasdasd");
          }
      });
@@ -162,10 +171,10 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
      });
     }
 
-//    @Override
-//    public int getItemViewType(int position) {
-//        return position;
-//    }
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
     @Override
     public long getItemId(int position) {
@@ -181,7 +190,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.Downlo
         TextView getDownloadStatusText, totalDownloadedValue, downloadValue;
         ImageView getDownloadIcon;
         Button cancelBtn, pauseBtn;
-        public static ProgressBar progressBar;
+        public ProgressBar progressBar;
 
         public DownloaderViewHolder(@NonNull View itemView) {
             super(itemView);

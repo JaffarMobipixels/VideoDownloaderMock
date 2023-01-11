@@ -21,11 +21,6 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         if (DownloadAdapter.myDownloaded == id) {
             Toast.makeText(context, "Download Completed", Toast.LENGTH_SHORT).show();
-
-
         }
-//sadsadsaoudsaoidusaudoisad
-
-
     }
 }
